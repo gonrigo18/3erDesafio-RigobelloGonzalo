@@ -1,20 +1,27 @@
-const {promises: fs} = require ('fs')
 const express = require ( 'express' );
-const { request } = require('http');
+const fs = require ('fs');
 const app = express();
 
+
+async function readFile(){
+    try{
+        const data = await fs.readFileSync ('./products.txt', 'utf-8');
+        return JSON.parse(data);
+    }catch(err){
+        console.log(err);
+    }
+}
+
 app.get('/products', (req, res) => {
-    res.send(__dirname + "/products.txt");
+    res.sendFile(__dirname + "/products.txt");
 });
 
-const products = JSON.parse( await fs.readFile("./products.txt", 'utf-8'));
-console.log(products);
 
-app.get('/productsRandom',(req, res) =>{
-    const random = parseInt(Math.random() * products.length)
-    res.send(products[random])
+app.get('/productsRandom', async (req, res) =>{
+    const product = await readFile();
+    const random = parseInt(Math.random() * product.length)
+    res.send(product[random])
 });
-
 
 
 const port = 8080;
